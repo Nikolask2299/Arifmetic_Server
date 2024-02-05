@@ -1,0 +1,7 @@
+{
+    "server": "arifmetic",
+    "port": 8080,
+    "timeout": "10s",
+    "storage_path":"",
+    "count_server_agent": 5
+}
