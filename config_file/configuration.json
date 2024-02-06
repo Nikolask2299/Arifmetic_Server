@@ -2,6 +2,6 @@
     "server": "arifmetic",
     "port": 8080,
     "timeout": "10s",
-    "storage_path":"",
+    "storage_path":"storage/storage.db",
     "count_server_agent": 5
 }
