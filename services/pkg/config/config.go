@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"os"
-	"time"
 )
 
 type Config struct {
-	server string  `json:"server" yaml:"server"`
-	port int 	 	`json:"port" yaml:"port"`
-	timeout time.Duration `json:"timeout" yaml:"timeout"`
-	storagePath string  `json:"storage_path" yaml:"storage_path"`
+	Server string  `json:"server" yaml:"server"`
+	Port string 	 	`json:"port" yaml:"port"`
+	Timeout string `json:"timeout" yaml:"timeout"`
+	StoragePath string  `json:"storage_path" yaml:"storage_path"`
 	CountAgent int  	 	`json:"count_agent" yaml:"count_agent"`
 }
 
