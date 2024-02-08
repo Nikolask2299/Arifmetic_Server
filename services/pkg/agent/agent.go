@@ -30,7 +30,10 @@ func Demon(agent *AgentService) {
 		}
 
 		body, _ := io.ReadAll(task.request.Body)
-		res := arifm.ArifmeticServer(string(body))
+		res, err := arifm.ArifmeticServer(string(body))
+		if err != nil {
+			fmt.Println(err)
+		}
 		fmt.Println(res)
 	}
 }

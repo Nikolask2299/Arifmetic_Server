@@ -1,14 +1,22 @@
 package arifm
 
-import "strings"
+import shuntingYard "github.com/mgenware/go-shunting-yard"
 
-func ArifmeticServer(expression string) int {
-	var result int
-	str := strings.Split(expression, " ")
+func ArifmeticServer(expression string) (int, error) {
 
-	for len(str) > 1 {
-	
-
+	infinxToken, err := shuntingYard.Scan(expression)
+	if err != nil {
+		return -1, err
 	}
-	return result
+
+	postfixToken, err := shuntingYard.Parse(infinxToken)
+	if err != nil {
+		return -1, err
+	}
+
+	result, err := shuntingYard.Evaluate(postfixToken)
+	if err != nil {
+		return -1, err
+	}
+	return result, nil
 }
