@@ -3,14 +3,13 @@ package agent
 import (
 	"errors"
 	"fmt"
-	"io"
 	"services/pkg/arifm"
 	"sync"
 	"time"
 )
 
 type AgentService struct {
-	ChanResponseChan chan UserTask
+	ChanInputTask chan *UserTask
 	mux sync.RWMutex
 	timeout time.Duration
 }
@@ -24,14 +23,12 @@ func NewCountDemon(count int, agent *AgentService) {
 func Demon(agent *AgentService) {
 	for {
 		task := agent.GetTask()
-		if task.request == nil {
+		if task == nil {
 			time.Sleep(time.Second * 10)
 			continue
 		}
 
-		body, _ := io.ReadAll(task.request.Body)
-		fmt.Println(string(body))
-		res, err := arifm.ArifmeticServer(string(body))
+		res, err := arifm.ArifmeticServer(task.task)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -40,26 +37,28 @@ func Demon(agent *AgentService) {
 }
 
 
-func (a *AgentService) GetTask() UserTask {
+func (a *AgentService) GetTask() *UserTask {
 	a.mux.RLock()
 	defer a.mux.RUnlock()
 	select {
-		case tsk := <- a.ChanResponseChan:
+		case tsk := <- a.ChanInputTask:
 			return tsk
-		case <-time.After(time.Second):
-			return UserTask{}
+		case <-time.After(2 * time.Second):
+			return nil
 	}
 }
 
 func NewAgentService(timeout time.Duration) *AgentService {
-	return &AgentService{ChanResponseChan: make(chan UserTask, 10), mux: sync.RWMutex{}, timeout: timeout}
+	return &AgentService{ChanInputTask: make(chan *UserTask, 10), mux: sync.RWMutex{}, timeout: timeout}
 }
 
 func (a *AgentService) Push(task UserTask) error {
+	a.mux.RLock()
+	defer a.mux.RUnlock()
 	select {
-		case a.ChanResponseChan <- task:
+		case a.ChanInputTask <- &task:
 			return nil
-		case <-time.After(time.Second):
+		case <-time.After(3 * time.Second):
 			return errors.New("AgentService is unavailable for push")
 	}
 }
