@@ -48,7 +48,7 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 	return res, nil
 }
 
-func (a *AgentService)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
+func (a *AgentServiceInput)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		task, err := NewUserTask(r)
 		if err != nil {
@@ -63,7 +63,7 @@ func (a *AgentService)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
 			}			
 		}
 	} else if r.Method == "GET" {
-		
+
 	} else {
 		fmt.Fprintln(w, "Invalid method")
 	}

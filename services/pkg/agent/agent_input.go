@@ -8,19 +8,19 @@ import (
 	"time"
 )
 
-type AgentService struct {
+type AgentServiceInput struct {
 	ChanInputTask chan *UserTask
 	mux sync.RWMutex
 	timeout time.Duration
 }
 
-func NewCountDemon(count int, agent *AgentService) {
+func NewCountDemon(count int, agent *AgentServiceInput) {
 	for i := 0; i < count; i++ {
 		go Demon(agent)
 	}
 }
 
-func Demon(agent *AgentService) {
+func Demon(agent *AgentServiceInput) {
 	for {
 		task := agent.GetTask()
 		if task == nil {
@@ -36,8 +36,7 @@ func Demon(agent *AgentService) {
 	}
 }
 
-
-func (a *AgentService) GetTask() *UserTask {
+func (a *AgentServiceInput) GetTask() *UserTask {
 	a.mux.RLock()
 	defer a.mux.RUnlock()
 	select {
@@ -48,11 +47,11 @@ func (a *AgentService) GetTask() *UserTask {
 	}
 }
 
-func NewAgentService(timeout time.Duration) *AgentService {
-	return &AgentService{ChanInputTask: make(chan *UserTask, 10), mux: sync.RWMutex{}, timeout: timeout}
+func NewAgentServiceInput(timeout time.Duration) *AgentServiceInput {
+	return &AgentServiceInput{ChanInputTask: make(chan *UserTask, 10), mux: sync.RWMutex{}, timeout: timeout}
 }
 
-func (a *AgentService) Push(task UserTask) error {
+func (a *AgentServiceInput) Push(task UserTask) error {
 	a.mux.RLock()
 	defer a.mux.RUnlock()
 	select {
