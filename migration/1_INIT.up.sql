@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS tasks 
+(
+    id INTEGER PRIMARY KEY,
+    task TEXT  NOT NULL UNIQUE,
+    url TEXT NOT NULL UNIQUE
+);
+
+CREATE INDEX IF NOT EXISTS ind_url ON tasks (url);
+
+CREATE TABLE IF NOT EXISTS answers 
+(
+    id INTEGER PRIMARY KEY,
+    url TEXT NOT NULL UNIQUE,
+    task TEXT NOT NULL UNIQUE,
+    answer BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS ind_url ON answers (url);

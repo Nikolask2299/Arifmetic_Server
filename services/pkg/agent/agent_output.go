@@ -7,7 +7,7 @@ import (
 )
 
 type UserAnswer struct {
-	Id     string
+	Id     int
 	URL    string
 	task   string
 	answer int
@@ -21,7 +21,7 @@ type AgentServiceOutput struct {
 
 func NewUserAnswer(task UserTask, answer int) *UserAnswer {
 	return &UserAnswer{
-		Id: task.Id,
+		Id: task.id,
 		URL: task.URL,
 		task: task.task,
 		answer: answer,

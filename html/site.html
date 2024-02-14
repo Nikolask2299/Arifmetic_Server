@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign Up Form</title>
+        <link rel="stylesheet" href="/css/main.css">
+    </head>
+    <body>
+      <form name="expression" action="http://localhost:8080/arifmetic" method="post" enctype="application/json">
+        <textarea id="bio" name="expression" placeholder="Введите выражение"></textarea>
+        <button type="submit">Отправить</button>
+      </form>
+
+      <script>
+        var formData = new FormData(document.forms.expression);
+        var xhr = new XMLHttpRequest();
+        var json = JSON.stringify(formData);
+        xhr.open("POST", '/submit', true)
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        xhr.send(json);
+      </script>
+    </body>
+</html>

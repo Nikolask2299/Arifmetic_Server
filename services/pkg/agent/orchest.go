@@ -6,11 +6,10 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
-	"strconv"
 )
 
 type UserTask struct {
-	Id string 
+	id int
 	task string
 	URL string
 }
@@ -34,7 +33,7 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 		id := NewId()
 
 		for _, tas := range buff {
-			res = append(res, &UserTask{Id: id, task: tas, URL: url})
+			res = append(res, &UserTask{id: id, task: tas, URL: url})
 		}
 	} else if request.Header.Get("Content-Type") == "text/plain" {
 		body, err := io.ReadAll(request.Body)
@@ -43,7 +42,7 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 		}
 		url := request.URL.Path
 		id := NewId()
-		res = append(res, &UserTask{Id: id, task: string(body), URL: url})
+		res = append(res, &UserTask{id: id, task: string(body), URL: url})
 	}
 	return res, nil
 }
@@ -54,7 +53,7 @@ func (a *AgentServiceInput)MainOrchestrator(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			fmt.Fprint(w, "Error creating incorrect user task")
 		} else {
-			fmt.Fprintln(w, task[0].Id)
+			fmt.Fprintln(w, task[0].id)
 			for _, ts := range task {
 				gf := ts
 				go func(gf *UserTask) {
@@ -69,11 +68,11 @@ func (a *AgentServiceInput)MainOrchestrator(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func NewId() string {
-	var res string
+func NewId() int {
+	var res int
 	for i := 0; i < 3; i++ {
 		num := rand.Intn(100)
-		res += strconv.Itoa(num)
+		res += num
 	}	
 	return res
 }
