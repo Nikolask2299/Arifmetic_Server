@@ -49,17 +49,17 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 
 func (a *AgentServiceInput)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		fmt.Println("OK")
 		task, err := NewUserTask(r)
 		if err != nil {
 			fmt.Fprint(w, "Error creating incorrect user task")
 		} else {
-			fmt.Fprintln(w, task[0].id)
 			for _, ts := range task {
 				gf := ts
 				go func(gf *UserTask) {
 					a.Push(*gf)
 				}(gf) 
-			}			
+			}	
 		}
 	} else if r.Method == "GET" {
 

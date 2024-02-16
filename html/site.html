@@ -4,21 +4,38 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Sign Up Form</title>
-        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="css/normalize.css">
     </head>
     <body>
       <form name="expression" action="http://localhost:8080/arifmetic" method="post" enctype="application/json">
-        <textarea id="bio" name="expression" placeholder="Введите выражение"></textarea>
+        <textarea id="expressions" name="expressions" placeholder="Введите выражения, разделяя их символом ;"></textarea>
+        <button type="button" onclick="sendExpressions()">Отправить</button>
+      </form>
+      <p>Ваш ID запроса: <span id="request-id"></span></p>
+      <form name="id request" action="http://localhost:8080/arifmetic" method="get" enctype="application/json">
+        <input id="request-id" name="id" placeholder="Введите ID запроса"></input>
         <button type="submit">Отправить</button>
       </form>
-
+      <table class="table">
+          <th>Выражение</th>
+          <th>Ответ</th>
+          <th>Статус</th>  
+      </table>
       <script>
-        var formData = new FormData(document.forms.expression);
-        var xhr = new XMLHttpRequest();
-        var json = JSON.stringify(formData);
-        xhr.open("POST", '/submit', true)
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        xhr.send(json);
+        function sendExpressions() {
+          var expressions = document.getElementById("expressions").value;
+          var expressionList = expressions.split(';').map(expression => expression.trim());
+          var data = expressionList;
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://localhost:8080/arifmetic", true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              console.log(xhr.responseText);
+            }
+            xhr.send(JSON.stringify(data));
+          };  
+        }
       </script>
     </body>
 </html>
