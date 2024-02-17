@@ -3,24 +3,53 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign Up Form</title>
+        <title>Matematic Server</title>
         <link rel="stylesheet" href="css/normalize.css">
     </head>
+    
     <body>
-      <form name="expression" action="http://localhost:8080/arifmetic" method="post" enctype="application/json">
+      <form>
         <textarea id="expressions" name="expressions" placeholder="Введите выражения, разделяя их символом ;"></textarea>
         <button type="button" onclick="sendExpressions()">Отправить</button>
       </form>
+
       <p>Ваш ID запроса: <span id="request-id"></span></p>
-      <form name="id request" action="http://localhost:8080/arifmetic" method="get" enctype="application/json">
-        <input id="request-id" name="id" placeholder="Введите ID запроса"></input>
-        <button type="submit">Отправить</button>
+      
+      <form>
+        <textarea id="request-id-input" placeholder="Введите ID запроса"></textarea>
+        <button type="button" onclick="sendRequestID()">Отправить</button>
       </form>
-      <table class="table">
+      
+      <table class="table" id="table-id">
+        <tr>
+          <th>ID</th>
           <th>Выражение</th>
           <th>Ответ</th>
-          <th>Статус</th>  
+          <th>Статус</th>
+        </tr>
       </table>
+
+      
+        
+      <script>
+         function sendRequestID() {
+          var id = document.getElementById("request-id-input").value;
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "http://localhost:8080/arifmetic", true);
+          xhr.setRequestHeader("id", id);
+          xhr.onreadystatechange = function () {
+            var response = JSON.parse(xhr.responseText);
+            var table = document.getElementById("table-id");
+            var newrow = table.insertRow(table.rows.length);
+            newrow.insertCell(0).innerHTML = response.id;
+            newrow.insertCell(1).innerHTML = response.task;
+            newrow.insertCell(2).innerHTML = response.answer;
+            newrow.insertCell(3).innerHTML = response.status;
+          };
+          xhr.send();
+        }
+      </script>
+
       <script>
         function sendExpressions() {
           var expressions = document.getElementById("expressions").value;
@@ -30,12 +59,12 @@
           xhr.open("POST", "http://localhost:8080/arifmetic", true);
           xhr.setRequestHeader("Content-Type", "application/json");
           xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              console.log(xhr.responseText);
-            }
-            xhr.send(JSON.stringify(data));
-          };  
+            var response = xhr.responseText;
+            document.getElementById("request-id").textContent = response;
+          };
+          xhr.send(JSON.stringify(data));
         }
       </script>
+
     </body>
 </html>

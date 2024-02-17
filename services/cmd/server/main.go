@@ -26,8 +26,6 @@ func HandleHome(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
 func main() {
 	cfg := config.Mustload()
 	timeout, err := time.ParseDuration(cfg.Timeout)
@@ -35,11 +33,15 @@ func main() {
 		fmt.Println("Timeout is not a valid duration")
 	}
 
-	agents := agent.NewAgentServiceInput(timeout)
-	agent.NewCountDemon(cfg.CountAgent, agents)
+	agentsInp := agent.NewAgentServiceInput(timeout)
+	agentsOut := agent.NewAgentServiceOutput(timeout)
 
+	mainOrcest := agent.NewMainOrchestratorService(agentsInp, agentsOut)
+
+	agent.NewCountDemon(cfg.CountAgent, mainOrcest.AgentInp, mainOrcest.AgentOut)
+	go mainOrcest.Output()
 	
 	http.HandleFunc("/", HandleHome)
-	http.HandleFunc("/" + cfg.Server, agents.MainOrchestrator)
+	http.HandleFunc("/" + cfg.Server, mainOrcest.MainOrchestrator)
 	http.ListenAndServe(":" + cfg.Port, nil)
 }

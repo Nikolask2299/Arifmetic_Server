@@ -6,17 +6,16 @@ import (
 	"time"
 )
 
+type AgentServiceOutput struct {
+	ChanOutputAnswer chan *UserAnswer
+	mux              sync.Mutex
+	timeout time.Duration
+}
 type UserAnswer struct {
 	Id     int
 	URL    string
 	task   string
 	answer int
-}
-
-type AgentServiceOutput struct {
-	ChanOutputAnswer chan *UserAnswer
-	mux              sync.RWMutex
-	timeout time.Duration
 }
 
 func NewUserAnswer(task UserTask, answer int) *UserAnswer {
@@ -31,14 +30,14 @@ func NewUserAnswer(task UserTask, answer int) *UserAnswer {
 func NewAgentServiceOutput(timeout time.Duration) *AgentServiceOutput {
 	return &AgentServiceOutput{
 		ChanOutputAnswer: make(chan *UserAnswer, 10),
-		mux: sync.RWMutex{},
+		mux: sync.Mutex{},
 		timeout: timeout,
 	}
 }
 
 func(a *AgentServiceOutput) GetAnswer() *UserAnswer {
-	a.mux.RLock()
-	defer a.mux.RUnlock()
+	a.mux.Lock()
+	defer a.mux.Unlock()
 	select {
 		case ans := <- a.ChanOutputAnswer:
 			return ans
@@ -47,12 +46,12 @@ func(a *AgentServiceOutput) GetAnswer() *UserAnswer {
 	}
 }
 
-func (a *AgentServiceOutput) PushAnswer(usr UserAnswer) error {
-	a.mux.RLock()
-	defer a.mux.RUnlock()
+func (a *AgentServiceOutput) PushAnswer(usr *UserAnswer) error {
+	a.mux.Lock()
+	defer a.mux.Unlock()
 	
 	select {
-		case a.ChanOutputAnswer <- &usr:
+		case a.ChanOutputAnswer <- usr:
 			return nil
 		case <- time.After(3 * time.Second):
 			return errors.New("AgentService is unavailable for push")

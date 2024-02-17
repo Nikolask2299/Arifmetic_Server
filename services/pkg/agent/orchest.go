@@ -6,13 +6,8 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"strconv"
 )
-
-type UserTask struct {
-	id int
-	task string
-	URL string
-}
 
 func NewUserTask(request *http.Request) ([]*UserTask, error) {
 	res := make([]*UserTask, 0, 10)
@@ -47,21 +42,30 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 	return res, nil
 }
 
-func (a *AgentServiceInput)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
+func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		fmt.Println("OK")
 		task, err := NewUserTask(r)
 		if err != nil {
 			fmt.Fprint(w, "Error creating incorrect user task")
 		} else {
+			index := make([]int, 0, len(task))
 			for _, ts := range task {
 				gf := ts
+				index = append(index, gf.id)
 				go func(gf *UserTask) {
-					a.Push(*gf)
+					a.AgentInp.Push(*gf)
 				}(gf) 
 			}	
+			fmt.Fprintln(w, index)
 		}
 	} else if r.Method == "GET" {
+		idst := r.Header.Get("id")
+		id, _ := strconv.Atoi(idst)
+		answ := a.GetAnswerData(id)
+		if answ == nil {
+			
+		}
+		
 
 	} else {
 		fmt.Fprintln(w, "Invalid method")
