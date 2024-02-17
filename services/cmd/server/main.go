@@ -11,16 +11,18 @@ import (
 )
 
 func HandleHome(rw http.ResponseWriter, r *http.Request) {
-	path := filepath.Join("E:/", "prim", "Arifmetic_Server", "html", "site.html")
+	path := filepath.Join("html", "site.html")
 
 	tmpl, err := template.ParseFiles(path)
 	if err != nil {
+		fmt.Println(err)
 		http.Error(rw, err.Error(), 400)
 		return
 	}
 
 	err = tmpl.Execute(rw, nil)
 	if err != nil {
+		fmt.Println(err)
 		http.Error(rw, err.Error(), 400)
 		return
 	}
@@ -40,7 +42,7 @@ func main() {
 
 	agent.NewCountDemon(cfg.CountAgent, mainOrcest.AgentInp, mainOrcest.AgentOut)
 	go mainOrcest.Output()
-	
+	fmt.Println("Server OK")
 	http.HandleFunc("/", HandleHome)
 	http.HandleFunc("/" + cfg.Server, mainOrcest.MainOrchestrator)
 	http.ListenAndServe(":" + cfg.Port, nil)
