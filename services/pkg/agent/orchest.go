@@ -64,12 +64,12 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 					a.Push(*gf)
 				}(gf) 
 			}	
-
 			mainIndex := NewId()
 			a.dataout.dataindex[mainIndex] = index
 			a.dataout.countWork[mainIndex] = len(task)
 			fmt.Fprintln(w, mainIndex)
 		}
+
 	} else if r.Method == "GET" {
 
 		idst := r.Header.Get("id")
@@ -104,15 +104,15 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 			
 			body, _ := json.Marshal(masout)
 			fmt.Fprintln(w, string(body))
-
+		
 			if a.dataout.countWork[id] == 0 {
 				for _, ts := range vl {
 					delete(a.dataout.dataBool, ts)
 				}
 				delete(a.dataout.dataindex, id)
-				delete(a.dataout.countWork, id)
+				delete(a.dataout.countWork, id)		
 			}
-
+			
 		} else {
 			outwansw := OutAnswer{
 				Id: id,

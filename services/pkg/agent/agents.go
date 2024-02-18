@@ -22,7 +22,7 @@ func Demon(main *MainOrchestratorService) {
 
 		res, err := arifm.ArifmeticServer(task.task)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Demon:", err , task.id, task.task)
 		}
 		anwer := NewUserAnswer(*task, res)
 		main.AgentOut.PushAnswer(anwer)
