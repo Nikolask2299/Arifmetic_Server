@@ -6,15 +6,15 @@ import (
 	"services/pkg/arifm"
 )
 
-func NewCountDemon(count int, agentInp *AgentServiceInput, agentOut *AgentServiceOutput) {
+func NewCountDemon(count int, main *MainOrchestratorService) {
 	for i := 0; i < count; i++ {
-		go Demon(agentInp, agentOut)
+		go Demon(main)
 	}
 }
 
-func Demon(agentInp *AgentServiceInput, agentOut *AgentServiceOutput) {
+func Demon(main *MainOrchestratorService) {
 	for {
-		task := agentInp.GetTask()
+		task := main.GetTask()
 		if task == nil {
 			time.Sleep(time.Second * 10)
 			continue
@@ -25,7 +25,7 @@ func Demon(agentInp *AgentServiceInput, agentOut *AgentServiceOutput) {
 			fmt.Println(err)
 		}
 		anwer := NewUserAnswer(*task, res)
-		agentOut.PushAnswer(anwer)
+		main.AgentOut.PushAnswer(anwer)
 	}
 }
 

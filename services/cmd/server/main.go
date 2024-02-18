@@ -45,7 +45,7 @@ func main() {
 		path: cfg.HTMLpath,
 	}
 
-	agent.NewCountDemon(cfg.CountAgent, mainOrcest.AgentInp, mainOrcest.AgentOut)
+	agent.NewCountDemon(cfg.CountAgent, mainOrcest)
 	go mainOrcest.Output()
 	fmt.Println("Server OK")
 

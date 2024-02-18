@@ -4,6 +4,7 @@ package agent
 type MainOrchestratorService struct {
 	AgentInp *AgentServiceInput
 	AgentOut *AgentServiceOutput
+	dataCash []*UserTask
 	database  map[int]*UserAnswer
 	dataout *DataIndex
 }
@@ -18,6 +19,7 @@ func NewMainOrchestratorService(agentInp *AgentServiceInput, agentOut *AgentServ
 	return &MainOrchestratorService{
 		AgentInp: agentInp,
 		AgentOut: agentOut,
+		dataCash: make([]*UserTask, 1, 100),
 		database: make(map[int]*UserAnswer),
 		dataout: &DataIndex{dataindex: make(map[int][]int), 
 			dataBool: make(map[int]bool),

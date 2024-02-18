@@ -33,9 +33,8 @@ func NewUserTask(request *http.Request) ([]*UserTask, error) {
 		}
 
 		url := request.URL.Path
-		id := NewId()
-
 		for _, tas := range buff {
+			id := NewId()
 			res = append(res, &UserTask{id: id, task: tas, URL: url})
 		}
 	} else if request.Header.Get("Content-Type") == "text/plain" {
@@ -62,7 +61,7 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 				a.dataout.dataBool[gf.id] = true
 				index = append(index, gf.id)
 				go func(gf *UserTask) {
-					a.AgentInp.Push(*gf)
+					a.Push(*gf)
 				}(gf) 
 			}	
 
@@ -77,8 +76,9 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 		id, _ := strconv.Atoi(idst)
 		masout := make([]OutAnswer, 0, 10)
 
-		if vl, ok := a.dataout.dataindex[id]; ok {
+		fmt.Println(a.dataCash)
 
+		if vl, ok := a.dataout.dataindex[id]; ok {
 			for _, ts := range vl {
 				answ := a.GetAnswerData(ts)
 				if answ != nil {
@@ -98,13 +98,9 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 						outwansw2.Task = "NULL"
 						outwansw2.Answer = 0
 						outwansw2.Status = "WORKING"
-					} else {
-						outwansw2.Id = ts
-						outwansw2.Task ="NULL"
-						outwansw2.Answer = 0
-						outwansw2.Status = "COMPLETE"
+						masout = append(masout, outwansw2)
 					}
-					masout = append(masout, outwansw2)
+					
 				}
 			}
 			
@@ -140,9 +136,9 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 
 func NewId() int {
 	var res int
-	for i := 0; i < 3; i++ {
-		num := rand.Intn(100)
+	for i := 1; i < 5; i++ {
+		num := i * rand.Intn(100)
 		res += num
 	}	
-	return res
+	return res % 1000
 }

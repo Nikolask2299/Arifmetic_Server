@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"errors"
 	"sync"
 	"time"
 )
@@ -23,24 +22,38 @@ func NewAgentServiceInput(timeout time.Duration) *AgentServiceInput {
 		mux: sync.Mutex{}, timeout: timeout}
 }
 
-func (a *AgentServiceInput) GetTask() *UserTask {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+func (a *MainOrchestratorService) GetTask() *UserTask {
+	a.AgentInp.mux.Lock()
+	defer a.AgentInp.mux.Unlock()
 	select {
-		case tsk := <- a.ChanInputTask:
+		case tsk := <- a.AgentInp.ChanInputTask:
 			return tsk
 		case <-time.After(2 * time.Second):
+			for i, ts := range a.dataCash {
+				if ts != nil {
+					gf := ts
+					a.dataCash[i] = nil
+					return gf
+				}
+			}
 			return nil
 	}
 }
 
-func (a *AgentServiceInput) Push(task UserTask) error {
-	a.mux.Lock()
-	defer a.mux.Unlock()
+func (a *MainOrchestratorService) Push(task UserTask) error {
+	a.AgentInp.mux.Lock()
+	defer a.AgentInp.mux.Unlock()
 	select {
-		case a.ChanInputTask <- &task:
+		case a.AgentInp.ChanInputTask <- &task:
 			return nil
-		case <-time.After(3 * time.Second):
-			return errors.New("AgentService is unavailable for push")
+		case <-time.After(2 * time.Second):
+			for i, val := range a.dataCash {
+				if val == nil {
+					a.dataCash[i] = &task
+					return nil
+				}
+			}
+			a.dataCash = append(a.dataCash, &task)
+			return nil		
 	}
 }

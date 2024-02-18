@@ -41,7 +41,7 @@ func(a *AgentServiceOutput) GetAnswer() *UserAnswer {
 	select {
 		case ans := <- a.ChanOutputAnswer:
 			return ans
-		case <-time.After(3 * time.Second):
+		case <-time.After(2 * time.Second):
 			return nil
 	}
 }
@@ -53,7 +53,7 @@ func (a *AgentServiceOutput) PushAnswer(usr *UserAnswer) error {
 	select {
 		case a.ChanOutputAnswer <- usr:
 			return nil
-		case <- time.After(3 * time.Second):
+		case <- time.After(2 * time.Second):
 			return errors.New("AgentService is unavailable for push")
 	}	
 }
