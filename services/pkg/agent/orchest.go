@@ -76,8 +76,6 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 		id, _ := strconv.Atoi(idst)
 		masout := make([]OutAnswer, 0, 10)
 
-		fmt.Println(a.dataCash)
-
 		if vl, ok := a.dataout.dataindex[id]; ok {
 			for _, ts := range vl {
 				answ := a.GetAnswerData(ts)
