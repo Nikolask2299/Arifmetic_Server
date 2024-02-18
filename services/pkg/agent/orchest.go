@@ -68,13 +68,17 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 
 			mainIndex := NewId()
 			a.dataout.dataindex[mainIndex] = index
+			a.dataout.countWork[mainIndex] = len(task)
 			fmt.Fprintln(w, mainIndex)
 		}
 	} else if r.Method == "GET" {
+
 		idst := r.Header.Get("id")
 		id, _ := strconv.Atoi(idst)
 		masout := make([]OutAnswer, 0, 10)
+
 		if vl, ok := a.dataout.dataindex[id]; ok {
+
 			for _, ts := range vl {
 				answ := a.GetAnswerData(ts)
 				if answ != nil {
@@ -84,23 +88,37 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 						Answer: answ.answer,
 						Status: "OK",
 					}
-					delete(a.dataout.dataBool, answ.Id)
+					a.dataout.dataBool[answ.Id] = false
+					a.dataout.countWork[id]--
 					masout = append(masout, outwansw1)
 				} else {
-					if !a.dataout.dataBool[id] {
-						continue
-					}
-					outwansw2 := OutAnswer{
-						Id: ts,
-						Task: "NULL",
-						Answer: 0,
-						Status: "WORKING",
+					outwansw2 := OutAnswer{}
+					if a.dataout.dataBool[ts] {
+						outwansw2.Id = ts
+						outwansw2.Task = "NULL"
+						outwansw2.Answer = 0
+						outwansw2.Status = "WORKING"
+					} else {
+						outwansw2.Id = ts
+						outwansw2.Task ="NULL"
+						outwansw2.Answer = 0
+						outwansw2.Status = "COMPLETE"
 					}
 					masout = append(masout, outwansw2)
-				}	
+				}
 			}
+			
 			body, _ := json.Marshal(masout)
 			fmt.Fprintln(w, string(body))
+
+			if a.dataout.countWork[id] == 0 {
+				for _, ts := range vl {
+					delete(a.dataout.dataBool, ts)
+				}
+				delete(a.dataout.dataindex, id)
+				delete(a.dataout.countWork, id)
+			}
+
 		} else {
 			outwansw := OutAnswer{
 				Id: id,
@@ -112,10 +130,13 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 			body, _ := json.Marshal(masout)
 			fmt.Fprintln(w, string(body))
 		}
+	
 	} else {
 		fmt.Fprintln(w, "Invalid method")
 	}
 }
+
+
 
 func NewId() int {
 	var res int
