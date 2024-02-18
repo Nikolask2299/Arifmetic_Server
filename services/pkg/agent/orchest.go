@@ -9,6 +9,14 @@ import (
 	"strconv"
 )
 
+type OutAnswer struct {
+	Id int `json:"id"`
+	Task   string `json:"task"`
+	Answer int `json:"answer"`
+	Status string `json:"status"`
+}
+
+
 func NewUserTask(request *http.Request) ([]*UserTask, error) {
 	res := make([]*UserTask, 0, 10)
 	if request.Header.Get("Content-Type") == "application/json" {
@@ -51,22 +59,59 @@ func (a *MainOrchestratorService)MainOrchestrator(w http.ResponseWriter, r *http
 			index := make([]int, 0, len(task))
 			for _, ts := range task {
 				gf := ts
+				a.dataout.dataBool[gf.id] = true
 				index = append(index, gf.id)
 				go func(gf *UserTask) {
 					a.AgentInp.Push(*gf)
 				}(gf) 
 			}	
-			fmt.Fprintln(w, index)
+
+			mainIndex := NewId()
+			a.dataout.dataindex[mainIndex] = index
+			fmt.Fprintln(w, mainIndex)
 		}
 	} else if r.Method == "GET" {
 		idst := r.Header.Get("id")
 		id, _ := strconv.Atoi(idst)
-		answ := a.GetAnswerData(id)
-		if answ == nil {
-			
+		masout := make([]OutAnswer, 0, 10)
+		if vl, ok := a.dataout.dataindex[id]; ok {
+			for _, ts := range vl {
+				answ := a.GetAnswerData(ts)
+				if answ != nil {
+					outwansw1 := OutAnswer{
+						Id: answ.Id,
+						Task: answ.task,
+						Answer: answ.answer,
+						Status: "OK",
+					}
+					delete(a.dataout.dataBool, answ.Id)
+					masout = append(masout, outwansw1)
+				} else {
+					if !a.dataout.dataBool[id] {
+						continue
+					}
+					outwansw2 := OutAnswer{
+						Id: ts,
+						Task: "NULL",
+						Answer: 0,
+						Status: "WORKING",
+					}
+					masout = append(masout, outwansw2)
+				}	
+			}
+			body, _ := json.Marshal(masout)
+			fmt.Fprintln(w, string(body))
+		} else {
+			outwansw := OutAnswer{
+				Id: id,
+				Task: "NULL",
+				Answer: 0,
+				Status: "NOT FOUND",
+			}
+			masout = append(masout, outwansw)
+			body, _ := json.Marshal(masout)
+			fmt.Fprintln(w, string(body))
 		}
-		
-
 	} else {
 		fmt.Fprintln(w, "Invalid method")
 	}

@@ -13,6 +13,7 @@ type Config struct {
 	Timeout string `json:"timeout" yaml:"timeout"`
 	StoragePath string  `json:"storage_path" yaml:"storage_path"`
 	CountAgent int  	 	`json:"count_agent" yaml:"count_agent"`
+	HTMLpath string `json:"html_path" yaml:"html_path"`
 }
 
  func Mustload() *Config {

@@ -5,14 +5,24 @@ type MainOrchestratorService struct {
 	AgentInp *AgentServiceInput
 	AgentOut *AgentServiceOutput
 	database  map[int]*UserAnswer
+	dataout *DataIndex
 }
 
+type DataIndex struct {
+	dataindex map[int][]int
+	dataBool map[int]bool
+	countWork map[int]int
+}
 
 func NewMainOrchestratorService(agentInp *AgentServiceInput, agentOut *AgentServiceOutput) *MainOrchestratorService {
 	return &MainOrchestratorService{
 		AgentInp: agentInp,
 		AgentOut: agentOut,
 		database: make(map[int]*UserAnswer),
+		dataout: &DataIndex{dataindex: make(map[int][]int), 
+			dataBool: make(map[int]bool),
+			countWork: make(map[int]int),
+		},
 	}
 }
 
@@ -24,3 +34,4 @@ func (s *MainOrchestratorService) GetAnswerData(id int) *UserAnswer {
 		return nil
 	}
 }
+

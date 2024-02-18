@@ -38,15 +38,19 @@
           xhr.open("GET", "http://localhost:8080/arifmetic", true);
           xhr.setRequestHeader("id", id);
           xhr.onreadystatechange = function () {
-            var response = JSON.parse(xhr.responseText);
+            var responsemass = JSON.parse(xhr.response);
             var table = document.getElementById("table-id");
-            var newrow = table.insertRow(table.rows.length);
-            newrow.insertCell(0).innerHTML = response.id;
-            newrow.insertCell(1).innerHTML = response.task;
-            newrow.insertCell(2).innerHTML = response.answer;
-            newrow.insertCell(3).innerHTML = response.status;
+            table.innerHTML = "<tr><th>ID</th><th>Выражение</th><th>Ответ</th><th>Статус</th></tr>";
+            for (var i = 0; i < responsemass.length; i++) {
+              var response = responsemass[i];
+              var newrow = table.insertRow(1);
+              newrow.insertCell(0).innerHTML = response.id;
+              newrow.insertCell(1).innerHTML = response.task;
+              newrow.insertCell(2).innerHTML = response.answer;
+              newrow.insertCell(3).innerHTML = response.status;
+            };
           };
-          xhr.send();
+          xhr.send(null);
         }
       </script>
 

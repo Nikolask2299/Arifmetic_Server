@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path/filepath"
 	"services/pkg/agent"
 	"services/pkg/config"
 	"time"
 )
 
-func HandleHome(rw http.ResponseWriter, r *http.Request) {
-	path := filepath.Join("html", "site.html")
+type HTML struct {
+	path string
+}
 
-	tmpl, err := template.ParseFiles(path)
+func (p *HTML)HandleHome(rw http.ResponseWriter, r *http.Request) {
+	
+	tmpl, err := template.ParseFiles(p.path)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(rw, err.Error(), 400)
@@ -37,13 +39,17 @@ func main() {
 
 	agentsInp := agent.NewAgentServiceInput(timeout)
 	agentsOut := agent.NewAgentServiceOutput(timeout)
-
 	mainOrcest := agent.NewMainOrchestratorService(agentsInp, agentsOut)
+
+	html := &HTML{
+		path: cfg.HTMLpath,
+	}
 
 	agent.NewCountDemon(cfg.CountAgent, mainOrcest.AgentInp, mainOrcest.AgentOut)
 	go mainOrcest.Output()
 	fmt.Println("Server OK")
-	http.HandleFunc("/", HandleHome)
+
+	http.HandleFunc("/", html.HandleHome)
 	http.HandleFunc("/" + cfg.Server, mainOrcest.MainOrchestrator)
 	http.ListenAndServe(":" + cfg.Port, nil)
 }
